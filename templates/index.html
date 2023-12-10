@@ -1,0 +1,80 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBAC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" 
+    crossorigin="anonymous">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+    </div>
+</body>
+<script>
+    const app = Vue.createApp({
+        template:`<h1> {{ message }} </h1>
+        <input type="text" v-model="username"/>
+        <button @click="signin_get_details"> Get User Details </button>
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">user</th>
+                <th scope="col">role</th>
+                <th scope="col">message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <th scope="row">{{ user["id"] }}</th>
+                <td>{{ user["username"] }}</td>
+                <td>{{ user["role"] }}</td>
+                <td>{{ user["message"] }}</td>
+                </tr>
+            </tbody>
+            </table>`,
+        data(){
+            return {token: null,
+                username: null,
+                message: "Not Signed in!",
+                user: {"username": null,
+                        "id": null,
+                        "role": null,
+                        "message": null}
+
+            }
+        },
+        methods:{
+            get_user_details(){
+                
+                response  = fetch('/get-authenticated-data',{headers:{
+                                "Authentication-Token": this.token
+                            }
+                }).then( x=> x.json())
+
+                response.then( x =>{ this.user = x; this.message = "You are signed in!" });
+
+
+            },
+            signin_get_details(){
+
+                this.message = "Please Signin!"
+                fetch("/signin/"+this.username)
+                response = fetch('/get-user-token')
+                response = response.then(x => x.json())
+                response.then( x => {this.token = x["token"]; this.get_user_details()})
+
+            }
+
+        }
+    })
+
+    app.mount("#app")
+</script>
+</html>
+
+{% endraw %}
